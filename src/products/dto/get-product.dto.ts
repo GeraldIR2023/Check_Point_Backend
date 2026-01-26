@@ -16,4 +16,8 @@ export class GetProductsQueryDto {
   @IsOptional()
   @IsNumberString({}, { message: 'Cantity must be a number' })
   skip: number;
+
+  @IsOptional()
+  @IsString({ message: 'Search must be a string' })
+  search: string;
 }

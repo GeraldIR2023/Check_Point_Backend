@@ -13,6 +13,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { GetProductsQueryDto } from './dto/get-product.dto';
 import { IdValidationPipe } from '../common/pipes/id-validation.pipe';
+import { se } from 'date-fns/locale';
 
 @Controller('products')
 export class ProductsController {
@@ -25,12 +26,21 @@ export class ProductsController {
 
   @Get()
   findAll(@Query() query: GetProductsQueryDto) {
-    const category = query.category_id ? query.category_id : null;
-    const platform = query.platform ? query.platform : null;
-    const take = query.take ? query.take : 10;
-    const skip = query.skip ? query.skip : 0;
+    const { category_id, platform, take, skip, search } = query;
 
-    return this.productsService.findAll(category, platform, take, skip);
+    const category = category_id ? +category_id : null;
+    const platformVal = platform || null;
+    const takeVal = take ? +take : 12; // 12 es el estándar que usas en el frontend
+    const skipVal = skip ? +skip : 0;
+    const searchVal = search || null;
+
+    return this.productsService.findAll(
+      category,
+      platformVal,
+      searchVal,
+      takeVal,
+      skipVal,
+    );
   }
 
   @Get(':id')

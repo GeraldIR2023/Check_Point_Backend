@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { errorHandler } from '../utils/error-handler.utils';
-import { FindManyOptions, In, IsNull, Not, Repository } from 'typeorm';
+import { FindManyOptions, ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -32,6 +32,7 @@ export class ProductsService {
   async findAll(
     categoryId: number | null,
     platform: string | null,
+    search: string | null,
     take: number,
     skip: number,
   ) {
@@ -48,17 +49,14 @@ export class ProductsService {
 
     const where: any = {};
 
-    if (categoryId) {
-      where.category = { id: categoryId };
-    }
+    if (categoryId) where.category = { id: categoryId };
 
-    if (platform) {
-      where.platform = In([platform, 'Multi']);
-    }
+    if (platform) where.platform = In([platform, 'Multi']);
 
-    if (Object.keys(where).length > 0) {
-      options.where = where;
-    }
+    //* Search by name with ILike for case-insensitive matching
+    if (search) where.name = ILike(`%${search}%`);
+
+    if (Object.keys(where).length > 0) options.where = where;
 
     const [products, total] =
       await this.productRepository.findAndCount(options);
