@@ -1,4 +1,4 @@
-# compiled output
+# Compiled output
 /dist
 /node_modules
 /build
@@ -10,7 +10,6 @@ npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
 
 # OS
 .DS_Store
@@ -27,30 +26,29 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
-
-# IDE - VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
+# Dotenv environment variable files (¡Muy importante por seguridad!)
 .env
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+.env.*
+!.env.example
 
-# temp directory
+# Temp directory
 .temp
 .tmp
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# TypeScript cache
+*.tsbuildinfo
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+# Next.js / NestJS build output
+.next
+out
+dist
