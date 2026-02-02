@@ -6,6 +6,13 @@ import { SeederService } from './seeder.service';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
 import { Category } from '../categories/entities/category.entity';
+import {
+  Transaction,
+  TransactionContents,
+} from '../transactions/entities/transaction.entity';
+import { Coupon } from '../coupons/entities/coupon.entity';
+import { TransactionsModule } from '../transactions/transactions.module';
+import { CouponsModule } from '../coupons/coupons.module';
 
 @Module({
   imports: [
@@ -16,7 +23,16 @@ import { Category } from '../categories/entities/category.entity';
       useFactory: typeOrmConfig,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User, Product, Category]),
+    TypeOrmModule.forFeature([
+      User,
+      Product,
+      Category,
+      Transaction,
+      TransactionContents,
+      Coupon,
+    ]),
+    TransactionsModule,
+    CouponsModule,
   ],
   providers: [SeederService],
 })

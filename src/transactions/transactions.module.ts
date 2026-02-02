@@ -16,5 +16,6 @@ import { CouponsModule } from '../coupons/coupons.module';
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService],
+  exports: [TransactionsService],
 })
 export class TransactionsModule {}

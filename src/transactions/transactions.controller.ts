@@ -26,6 +26,12 @@ export class TransactionsController {
     return this.transactionsService.create(createTransactionDto, req.user);
   }
 
+  @Get('my-orders')
+  @UseGuards(AuthGuard)
+  findMyOrders(@Req() req) {
+    return this.transactionsService.findByUser(req.user.id);
+  }
+
   @Get()
   findAll(@Query('transactionDate') transactionDate: string) {
     return this.transactionsService.findAll(transactionDate);
@@ -47,11 +53,5 @@ export class TransactionsController {
   @Delete(':id')
   remove(@Param('id', IdValidationPipe) id: string) {
     return this.transactionsService.remove(+id);
-  }
-
-  @Get('my-orders')
-  @UseGuards(AuthGuard)
-  findMyOrders(@Req() req) {
-    return this.transactionsService.findByUser(req.user.id);
   }
 }

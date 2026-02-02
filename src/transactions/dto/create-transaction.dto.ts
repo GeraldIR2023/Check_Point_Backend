@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
 
@@ -29,6 +30,7 @@ export class CreateTransactionDto {
   total: number;
 
   @IsOptional()
+  @IsString()
   coupon: string;
 
   @IsArray()

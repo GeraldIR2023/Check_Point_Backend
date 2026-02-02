@@ -28,10 +28,9 @@ export class Transaction {
   @Column({ type: 'int' })
   userId: number;
 
-  @OneToMany(
-    () => TransactionContents,
-    (transaction) => transaction.transaction,
-  )
+  @OneToMany(() => TransactionContents, (content) => content.transaction, {
+    cascade: true,
+  })
   contents: TransactionContents[];
 
   @ManyToOne(() => User, (user) => user.transactions)
@@ -51,12 +50,11 @@ export class TransactionContents {
 
   @ManyToOne(() => Product, (product) => product.id, {
     eager: true,
-    cascade: true,
   })
   product: Product;
 
   @ManyToOne(() => Transaction, (transaction) => transaction.contents, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   transaction: Transaction;
 }
