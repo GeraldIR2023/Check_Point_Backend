@@ -29,7 +29,7 @@ export class TransactionsController {
   @Get('my-orders')
   @UseGuards(AuthGuard)
   findMyOrders(@Req() req) {
-    return this.transactionsService.findByUser(req.user.id);
+    return this.transactionsService.findByUser(req.user);
   }
 
   @Get()

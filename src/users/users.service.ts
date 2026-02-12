@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { checkPassword, hashPassword } from '../utils/auth';
 import { errorHandler } from '../utils/error-handler.utils';
-import { generateJWT } from '../utils/jwt';
 import { Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { generateToken } from '../utils/token';
@@ -10,6 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-current-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 interface LoginResponse {
   user: Omit<User, 'password'>;
@@ -22,6 +22,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private readonly mailService: MailService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -76,7 +77,13 @@ export class UsersService {
     if (!isPasswordCorrect)
       throw errorHandler('Password is incorrect', 'Unauthorized Exception');
 
-    const token = generateJWT(user.id, user.userTag, user.isAdmin);
+    const payload = {
+      sub: user.id,
+      userTag: user.userTag,
+      isAdmin: user.isAdmin,
+    };
+
+    const token = this.jwtService.sign(payload);
 
     //* Exclude password from the user object before returning it
     const { password: _, ...userWithoutPassword } = user;
@@ -212,7 +219,7 @@ export class UsersService {
     user.password = await hashPassword(updatePasswordDto.password);
     await this.usersRepository.save(user);
 
-    return 'Password has been changed';
+    return { message: 'Password has been changed' };
   }
 
   async checkPassword(password: string, id: number) {
@@ -234,8 +241,21 @@ export class UsersService {
     const updatedUser = this.usersRepository.merge(user, updateUserDto);
     const savedUser = await this.usersRepository.save(updatedUser);
 
+    //*Generate new Jwt with updated user data
+    const payload = {
+      sub: savedUser.id,
+      userTag: savedUser.userTag,
+      isAdmin: savedUser.isAdmin,
+    };
+
+    const token = this.jwtService.sign(payload);
+
     const { password: _, ...userWithoutPassword } = savedUser;
-    return userWithoutPassword;
+
+    return {
+      ...userWithoutPassword,
+      token,
+    };
   }
 
   async remove(id: number, password: string) {

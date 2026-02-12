@@ -90,6 +90,7 @@ export class SeederService {
             ...seedTransaction,
             coupon: seedTransaction.coupon ?? undefined,
           };
+
           await this.transactionsService.create(
             dataToSave as CreateTransactionDto,
             user,

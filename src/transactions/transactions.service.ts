@@ -75,6 +75,8 @@ export class TransactionsService {
           }
           product.inventory -= contents.quantity;
 
+          await transactionEntityManager.save(product);
+
           const transactionContent = new TransactionContents();
           transactionContent.price = contents.price;
           transactionContent.product = product;
@@ -253,17 +255,27 @@ export class TransactionsService {
     return { message: 'Transaction removed successfully' };
   }
 
-  async findByUser(userId: number) {
-    return await this.transactionRepository.find({
-      where: { user: { id: userId } },
+  async findByUser(userId: number, transactionDate?: string) {
+    const options: FindManyOptions<Transaction> = {
+      where: {
+        user: { id: userId },
+      },
       relations: {
-        contents: {
-          product: true,
-        },
+        contents: { product: true },
       },
-      order: {
-        transactionDate: 'DESC',
-      },
-    });
+      order: { transactionDate: 'DESC' },
+    };
+
+    if (transactionDate) {
+      const date = parseISO(transactionDate);
+      if (isValid(date)) {
+        options.where = {
+          ...options.where,
+          transactionDate: Between(startOfDay(date), endOfDay(date)),
+        };
+      }
+    }
+
+    return await this.transactionRepository.find(options);
   }
 }
