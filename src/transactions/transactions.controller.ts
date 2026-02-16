@@ -28,8 +28,8 @@ export class TransactionsController {
 
   @Get('my-orders')
   @UseGuards(AuthGuard)
-  findMyOrders(@Req() req) {
-    return this.transactionsService.findByUser(req.user);
+  findMyOrders(@Req() req, @Query('transactionDate') transactionDate?: string) {
+    return this.transactionsService.findByUser(req.user.id, transactionDate);
   }
 
   @Get()
