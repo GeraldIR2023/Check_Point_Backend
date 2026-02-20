@@ -7,19 +7,22 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { GetProductsQueryDto } from './dto/get-product.dto';
 import { IdValidationPipe } from '../common/pipes/id-validation.pipe';
-import { se } from 'date-fns/locale';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @UseGuards(AuthGuard, AdminGuard)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -30,7 +33,7 @@ export class ProductsController {
 
     const category = category_id ? +category_id : null;
     const platformVal = platform || null;
-    const takeVal = take ? +take : 12; // 12 es el estándar que usas en el frontend
+    const takeVal = take ? +take : 12;
     const skipVal = skip ? +skip : 0;
     const searchVal = search || null;
 
@@ -49,6 +52,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard, AdminGuard)
   update(
     @Param('id', IdValidationPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -57,6 +61,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, AdminGuard)
   remove(@Param('id', IdValidationPipe) id: string) {
     return this.productsService.remove(+id);
   }

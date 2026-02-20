@@ -21,6 +21,7 @@ import { CheckPasswordDto } from './dto/check-password.dto';
 import { AuthenticateUserDto } from './dto/authenticate-user-dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password-dto';
+import { AdminGuard } from '../common/guards/admin.guard';
 
 @Controller('users')
 export class UsersController {
@@ -71,6 +72,7 @@ export class UsersController {
     );
   }
 
+  @UseGuards(AuthGuard, AdminGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -106,13 +108,13 @@ export class UsersController {
   @Patch('update')
   @UseGuards(AuthGuard)
   async update(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    return await this.usersService.update(req.user, updateUserDto);
+    return await this.usersService.update(req.user.id, updateUserDto);
   }
 
   @Delete('delete-account')
   @UseGuards(AuthGuard)
   async remove(@Req() req: any, @Body() checkPasswordDto: CheckPasswordDto) {
-    const userId = req.user;
+    const userId = req.user.id;
     return this.usersService.remove(userId, checkPasswordDto.password);
   }
 }

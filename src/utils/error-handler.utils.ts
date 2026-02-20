@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -19,7 +20,8 @@ export const errorHandler = (
     | 'Internal Server Error'
     | 'Conflict Exception'
     | 'Unauthorized Exception'
-    | 'Unprocessable Entity Exception',
+    | 'Unprocessable Entity Exception'
+    | 'Forbidden Exception',
 ) => {
   const errors = [error];
 
@@ -37,6 +39,8 @@ export const errorHandler = (
       throw new UnauthorizedException(errors);
     case 'Unprocessable Entity Exception':
       throw new UnprocessableEntityException(errors);
+    case 'Forbidden Exception':
+      throw new ForbiddenException(errors);
     default:
       throw new InternalServerErrorException(errors);
   }
