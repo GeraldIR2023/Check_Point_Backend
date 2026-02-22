@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -20,8 +21,12 @@ export class CreateProductDto {
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Invalid price' })
   price: number;
 
-  @IsNotEmpty({ message: 'Inventory cannot be empty' })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Invalid discount price' })
+  discountPrice: number;
+
   @IsNumber({ maxDecimalPlaces: 0 }, { message: 'Invalid cantity' })
+  @Min(0, { message: 'Inventory cannot be negative' })
   inventory: number;
 
   @IsNotEmpty({ message: 'Category is required' })
