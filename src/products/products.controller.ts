@@ -8,18 +8,25 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { GetProductsQueryDto } from './dto/get-product.dto';
 import { IdValidationPipe } from '../common/pipes/id-validation.pipe';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { AdminGuard } from '../common/guards/admin.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadImageService } from '../upload-image/upload-image.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly uploadImageService: UploadImageService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard, AdminGuard)
@@ -64,5 +71,14 @@ export class ProductsController {
   @UseGuards(AuthGuard, AdminGuard)
   remove(@Param('id', IdValidationPipe) id: string) {
     return this.productsService.remove(+id);
+  }
+
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+    return this.uploadImageService.uploadFile(file);
   }
 }

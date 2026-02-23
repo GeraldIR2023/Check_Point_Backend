@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { errorHandler } from 'src/utils/error-handler.utils';
+import { errorHandler } from '../../utils/error-handler.utils';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
