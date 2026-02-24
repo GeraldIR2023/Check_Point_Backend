@@ -15,6 +15,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { IdValidationPipe } from '../common/pipes/id-validation.pipe';
 import { AuthGuard } from '../common/guards/auth.guard';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -30,6 +31,15 @@ export class TransactionsController {
   @UseGuards(AuthGuard)
   findMyOrders(@Req() req, @Query('transactionDate') transactionDate?: string) {
     return this.transactionsService.findByUser(req.user.id, transactionDate);
+  }
+
+  @Get('user/:userId')
+  @UseGuards(AuthGuard, AdminGuard)
+  async findTransactionsByUser(
+    @Param('userId', IdValidationPipe) userId: string,
+    @Query('transactionDate') transactionDate?: string,
+  ) {
+    return this.transactionsService.findByUser(+userId, transactionDate);
   }
 
   @Get()
