@@ -185,12 +185,10 @@ export class UsersService {
 
     if (!user) throw errorHandler('User not found', 'Not Found');
 
-    const data = {
-      userTag: user.userTag,
-      email: user.email,
-    };
+    //*Delete password and token before return the result
+    const { password, token, ...result } = user;
 
-    return data;
+    return result;
   }
 
   async updateCurrentUserPassword(
@@ -272,6 +270,18 @@ export class UsersService {
 
     return {
       message: `User with tag "${user.userTag}" has been successfully deleted`,
+    };
+  }
+
+  async removeByAdmin(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) throw errorHandler('User not found', 'Not Found');
+
+    await this.usersRepository.delete(id);
+
+    return {
+      message: `User with tag "${user.userTag}" has been deleted by administrator`,
     };
   }
 }

@@ -22,6 +22,7 @@ import { AuthenticateUserDto } from './dto/authenticate-user-dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password-dto';
 import { AdminGuard } from '../common/guards/admin.guard';
+import { IdValidationPipe } from 'src/common/pipes/id-validation.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -79,6 +80,7 @@ export class UsersController {
   }
 
   @Get(':userTag')
+  @UseGuards(AuthGuard, AdminGuard)
   async findOne(@Param('userTag') userTag: string) {
     return this.usersService.findOne(userTag);
   }
@@ -116,5 +118,11 @@ export class UsersController {
   async remove(@Req() req: any, @Body() checkPasswordDto: CheckPasswordDto) {
     const userId = req.user.id;
     return this.usersService.remove(userId, checkPasswordDto.password);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, AdminGuard)
+  async removeByAdmin(@Param('id', IdValidationPipe) id: string) {
+    return this.usersService.removeByAdmin(+id);
   }
 }
