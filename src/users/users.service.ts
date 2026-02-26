@@ -37,6 +37,7 @@ export class UsersService {
     const user = this.usersRepository.create({
       ...createUserDto,
       password: await hashPassword(createUserDto.password),
+      isAdmin: false,
       token,
     });
 
@@ -283,5 +284,18 @@ export class UsersService {
     return {
       message: `User with tag "${user.userTag}" has been deleted by administrator`,
     };
+  }
+
+  async updateByAdmin(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) throw errorHandler('User not found', 'Not Found');
+
+    const updatedUser = this.usersRepository.merge(user, updateUserDto);
+    const savedUser = await this.usersRepository.save(updatedUser);
+
+    const { password, token, ...userWithoutSensitiveData } = savedUser;
+
+    return userWithoutSensitiveData;
   }
 }

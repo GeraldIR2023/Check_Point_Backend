@@ -125,4 +125,13 @@ export class UsersController {
   async removeByAdmin(@Param('id', IdValidationPipe) id: string) {
     return this.usersService.removeByAdmin(+id);
   }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, AdminGuard)
+  async updateByAdmin(
+    @Param('id', IdValidationPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.usersService.updateByAdmin(id, updateUserDto);
+  }
 }
