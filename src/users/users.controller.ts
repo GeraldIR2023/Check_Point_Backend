@@ -92,7 +92,7 @@ export class UsersController {
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
     return this.usersService.updateCurrentUserPassword(
-      req.user,
+      req.user.id,
       updatePasswordDto,
     );
   }
@@ -104,7 +104,10 @@ export class UsersController {
     @Req() req: any,
     @Body() checkPasswordDto: CheckPasswordDto,
   ) {
-    return this.usersService.checkPassword(checkPasswordDto.password, req.user);
+    return this.usersService.checkPassword(
+      checkPasswordDto.password,
+      req.user.id,
+    );
   }
 
   @Patch('update')
@@ -120,10 +123,10 @@ export class UsersController {
     return this.usersService.remove(userId, checkPasswordDto.password);
   }
 
-  @Delete(':id')
+  @Post('admin/create')
   @UseGuards(AuthGuard, AdminGuard)
-  async removeByAdmin(@Param('id', IdValidationPipe) id: string) {
-    return this.usersService.removeByAdmin(+id);
+  async createAdmin(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createByAdmin(createUserDto);
   }
 
   @Patch(':id')
@@ -133,5 +136,11 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return await this.usersService.updateByAdmin(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, AdminGuard)
+  async removeByAdmin(@Param('id', IdValidationPipe) id: string) {
+    return this.usersService.removeByAdmin(+id);
   }
 }

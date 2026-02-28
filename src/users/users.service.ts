@@ -59,7 +59,7 @@ export class UsersService {
       }
     } else {
       console.log('--- MAIL SERVICE SKIPPED (SKIP_MAIL=true) ---');
-      console.log(`Token para ${savedUser.userTag}: ${token}`);
+      console.log(`Token for ${savedUser.userTag}: ${token}`);
     }
 
     return savedUser;
@@ -274,16 +274,42 @@ export class UsersService {
     };
   }
 
-  async removeByAdmin(id: number) {
-    const user = await this.usersRepository.findOneBy({ id });
+  async createByAdmin(createUserDto: CreateUserDto) {
+    const userExists = await this.usersRepository.findOneBy({
+      email: createUserDto.email,
+    });
 
-    if (!user) throw errorHandler('User not found', 'Not Found');
+    if (userExists)
+      throw errorHandler('User already exists', 'Conflict Exception');
 
-    await this.usersRepository.delete(id);
+    const token = generateToken();
 
-    return {
-      message: `User with tag "${user.userTag}" has been deleted by administrator`,
-    };
+    //*Create a temporal password
+    const tempPass = createUserDto.password || generateToken().slice(0, 10);
+
+    const user = this.usersRepository.create({
+      ...createUserDto,
+      password: await hashPassword(tempPass),
+      isAdmin: createUserDto.isAdmin ?? false,
+      token,
+    });
+
+    const savedUser = await this.usersRepository.save(user);
+
+    if (process.env.SKIP_MAIL !== 'true') {
+      try {
+        await this.mailService.sendToken(
+          savedUser.email,
+          savedUser.userTag,
+          token,
+        );
+      } catch (error) {
+        console.error('MailService Error:', error);
+      }
+    }
+
+    const { password, token: _, ...result } = savedUser;
+    return result;
   }
 
   async updateByAdmin(id: number, updateUserDto: UpdateUserDto) {
@@ -297,5 +323,17 @@ export class UsersService {
     const { password, token, ...userWithoutSensitiveData } = savedUser;
 
     return userWithoutSensitiveData;
+  }
+
+  async removeByAdmin(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) throw errorHandler('User not found', 'Not Found');
+
+    await this.usersRepository.delete(id);
+
+    return {
+      message: `User with tag "${user.userTag}" has been deleted by administrator`,
+    };
   }
 }
